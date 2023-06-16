@@ -13,8 +13,31 @@ h1 {
     color: #333;
 }
 
-canvas {
-    background-color: #f2f2f2;
-    border: 1px solid #ccc;
-    margin-top: 20px;
+.log {
+    font-size: 16px;
+    color: gray;
 }
+
+
+.grid-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr; /* Two equal-width columns */
+    padding: 10px;
+    justify-content: center;
+    align-content: center;
+}
+.grid-item {
+    display: flex;
+    flex-direction: column;
+    border: 1px solid rgba(0, 0, 0, 0.8);
+    padding: 20px;
+    font-size: 30px;
+    text-align: center;
+    justify-content: center; /* Center horizontally */
+    align-items: center; /* Center vertically */
+}
+
+#waveformCanvas {
+    display: block;
+}
+

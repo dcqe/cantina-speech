@@ -1,65 +1,63 @@
-var csvData;
-var cocktailList;
+let csvData;
+let cocktailList;
 
 // Function to handle the CSV file response
 function handleCSVResponse(response) {
-  if (!response.ok) {
-    console.error('Failed to load the CSV file:', response.status, response.statusText);
-    return;
-  }
+    if (!response.ok) {
+        console.error('Failed to load the CSV file:', response.status, response.statusText);
+        return;
+    }
 
-  response.text().then(function (contents) {
-    csvData = contents; // Store the CSV data in the global variable
-    console.log('CSV data:', csvData);
-    cocktailList = parseCSVFile(csvData)
-    console.log(cocktailList)
+    response.text().then(function (contents) {
+        csvData = contents; // Store the CSV data in the global variable
+        console.log('CSV data:', csvData);
+        cocktailList = parseCSVFile(csvData)
+        console.log(cocktailList)
 
-    // Get the container element where the table will be displayed
-    var container = document.getElementById('order-list'); 
-    // Generate the HTML table and insert it into the container
-    container.innerHTML = generateHTMLTable(contents);
-});
+        // Get the container element where the table will be displayed
+        const container = document.getElementById('order-list');
+        // Generate the HTML table and insert it into the container
+        container.innerHTML = generateHTMLTable(contents);
+    });
 }
 
 // Fetch the CSV file from the server
 fetch('cocktails.csv')
-  .then(handleCSVResponse)
-  .catch(function (error) {
-    console.error('Failed to fetch the CSV file:', error);
-  });
+    .then(handleCSVResponse)
+    .catch(function (error) {
+        console.error('Failed to fetch the CSV file:', error);
+    });
 
 
 function generateHTMLTable(csvData) {
-    var lines = csvData.split('\n'); // Split CSV into lines
-    var tableHTML = '<table>';
-  
+    const lines = csvData.split('\n'); // Split CSV into lines
+    let tableHTML = '<table>';
+
     // Generate table header
-    var headers = lines[0].split(',');
+    const headers = lines[0].split(',');
     tableHTML += '<tr>';
-    for (var i = 0; i < headers.length; i++) {
-      tableHTML += '<th>' + headers[i] + '</th>';
+    for (let i = 0; i < headers.length; i++) {
+        tableHTML += '<th>' + headers[i] + '</th>';
     }
     tableHTML += '</tr>';
-  
+
     // Generate table rows
-    for (var j = 1; j < lines.length; j++) {
-      var row = lines[j].split(',');
-      tableHTML += '<tr>';
-      for (var k = 0; k < row.length; k++) {
-        tableHTML += '<td>' + row[k] + '</td>';
-      }
-      tableHTML += '</tr>';
+    for (let j = 1; j < lines.length; j++) {
+        const row = lines[j].split(',');
+        tableHTML += '<tr>';
+        for (let k = 0; k < row.length; k++) {
+            tableHTML += '<td>' + row[k] + '</td>';
+        }
+        tableHTML += '</tr>';
     }
-  
+
     tableHTML += '</table>';
-  
+
     return tableHTML;
-  }
+}
 
 
 
-
-///////////////
 // Create a SpeechRecognition object
 const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition || window.mozSpeechRecognition || window.msSpeechRecognition)();
 
@@ -76,22 +74,21 @@ recognition.onresult = (event) => {
         const result = event.results[i];
         const text = result[0].transcript;
 
-        let orderResult = null;
         if (result.isFinal) {
             finalTranscript += text;
-            //orderResult = onTextChange(finalTranscript)
         } else {
             interimTranscript += text;
-            //orderResult = onTextChange(interimTranscript)
-        }
-        if (orderResult !== null){
-            return orderResult;
         }
     }
 
     const transcriptionElement = document.getElementById('transcription');
-    //new interim text and final transcriptions in two lines
     transcriptionElement.innerHTML = `<div  class="interim">${interimTranscript}</div ><div  class="final">${finalTranscript}</div >`;
+    let orderResult = onTextChange(finalTranscript + interimTranscript)
+    const logElem = document.getElementById('log');
+    logElem.innerHTML = orderResult;
+    if (orderResult !== "" && orderResult !== null && orderResult !== 0) {
+        console.log(orderResult);
+    }
 };
 
 recognition.onend = () => {
@@ -101,34 +98,46 @@ recognition.onend = () => {
 
 recognition.start();
 
+recognition.onstart = () => {
+    const logElem = document.getElementById('log');
+    logElem.innerHTML = `<div class="log">recognition started</div >`;
+}
+
 /////////////
 class Cocktail {
+
     constructor(id, name) {
         this.id = id;
-        this.name = name;
+        this.name = String(name);
     }
 
-    isEqual(text) {
-        return text === this.id || text === this.name;
+    toString() {
+        return String(this.id) + ": " + String(this.name);
     }
 }
 
 function onTextChange(entireText) {//detect cocktail
-    var trimmedText = entireText.trim();
-
-
-
-    for (const cocktail in allCocktails){
-        if(cocktail.isEqual(trimmedText)){
-            return cocktail;
+    let trimmedText = entireText.trim();
+    trimmedText = trimmedText.replace(",", "");
+    console.log(trimmedText);
+    for (var i = 0; i < cocktailList.length; i++) {
+        var cocktail = cocktailList[i];
+        if (includedIn(cocktail, trimmedText)) {
+            return cocktail
         }
     }
     return null;
 }
 
+function includedIn(cocktail, text) {
+    const lowerText = String(text).toLowerCase()
+    console.log(lowerText)
+    return lowerText.includes(cocktail.id) || lowerText.includes(String(cocktail.name).toLowerCase());
+}
+
 function parseCSVFile(csvData) {
     const lines = csvData.split('\n');
-    const cocktails = [];
+    var cocktails = [];
 
     for (let i = 1; i < lines.length; i++) {//ignore header
         let line = lines[i].trim();
