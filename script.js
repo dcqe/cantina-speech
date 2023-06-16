@@ -32,3 +32,8 @@ recognition.onend = () => {
 };
 
 recognition.start();
+
+recognition.onstart = () => {
+    const logElem = document.getElementById('transcription');
+    logElem.innerHTML = `<div class="log">recognition started</div >`;
+}

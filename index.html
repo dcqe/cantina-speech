@@ -1,12 +1,120 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
     <title>Microphone Transcription</title>
     <link rel="stylesheet" type="text/css" href="styles.css">
 </head>
 <body>
-    <h1>Microphone Transcription</h1>
+<h1>boozer speech</h1>
+<div class="grid-container">
+    <div class="grid-item">
+        <canvas id="waveformCanvas" width="500" height="200"></canvas>
+    </div>
+    <div class="grid-item">
+        <h2>order list</h2>
+        <table class="order-list">
+            <thead>
+            <tr>
+                <th>ID</th>
+                <th>Name</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td>5204</td>
+                <td>Margarita</td>
+            </tr>
+            <tr>
+                <td>7405</td>
+                <td>Cosmopolitan</td>
+            </tr>
+            <tr>
+                <td>1197</td>
+                <td>Bloody Mary</td>
+            </tr>
+            <tr>
+                <td>7588</td>
+                <td>Manhattan</td>
+            </tr>
+            <tr>
+                <td>8808</td>
+                <td>Negroni</td>
+            </tr>
+            <tr>
+                <td>9089</td>
+                <td>Old Fashioned</td>
+            </tr>
+            <tr>
+                <td>3669</td>
+                <td>Sex on the Beach</td>
+            </tr>
+            <tr>
+                <td>6054</td>
+                <td>Martini</td>
+            </tr>
+            <tr>
+                <td>5613</td>
+                <td>Mai Tai</td>
+            </tr>
+            <tr>
+                <td>1915</td>
+                <td>White Russian</td>
+            </tr>
+            <tr>
+                <td>4391</td>
+                <td>Whiskey Sour</td>
+            </tr>
+            <tr>
+                <td>2712</td>
+                <td>Mojito</td>
+            </tr>
+            </tbody>
+        </table>    </div>
+</div>
+<h2>Microphone Transcription</h2>
     <div id="transcription"></div>
+    <div class="log"></div>
+
+
+    <script>
+        // Get the canvas element
+        const canvas = document.getElementById('waveformCanvas');
+        const ctx = canvas.getContext('2d');
+
+        // Waveform data
+        const waveform = [0.2, 0.5, 0.8, 0.3, 0.6, 0.4, 0.1, 0.9, 0.7, 0.2];
+
+        // Clear the canvas
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        // Smooth the waveform using interpolation
+        const interpolatedWaveform = [];
+        for (let i = 0; i < waveform.length - 1; i++) {
+            const currentValue = waveform[i];
+            const nextValue = waveform[i + 1];
+            const interpolatedValues = [currentValue];
+            for (let j = 0; j < 10; j++) {
+                const t = (j + 1) / 10;
+                const interpolatedValue = currentValue + (nextValue - currentValue) * t;
+                interpolatedValues.push(interpolatedValue);
+            }
+            interpolatedWaveform.push(...interpolatedValues);
+        }
+
+        // Draw the waveform
+        ctx.beginPath();
+        ctx.moveTo(0, canvas.height / 2);
+
+        for (let i = 0; i < interpolatedWaveform.length; i++) {
+            const x = (i / (interpolatedWaveform.length - 1)) * canvas.width;
+            const y = (1 - interpolatedWaveform[i]) * canvas.height;
+            ctx.lineTo(x, y);
+        }
+
+        ctx.lineTo(canvas.width, canvas.height / 2);
+        ctx.strokeStyle = 'blue';
+        ctx.stroke();
+    </script>
 
     <script src="script.js"></script>
 </body>
