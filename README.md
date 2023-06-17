@@ -1,6 +1,6 @@
 To be able to access the csv file:
 ```
-npm install -g http-server
+npm install
 http-server
 ```
 open
